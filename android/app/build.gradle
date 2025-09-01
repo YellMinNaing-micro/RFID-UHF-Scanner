@@ -108,7 +108,7 @@ android {
 }
 
 dependencies {
-    // The version of react-native is set by the React Native Gradle Plugin
+    // React Native core
     implementation("com.facebook.react:react-android")
 
     if (hermesEnabled.toBoolean()) {
@@ -116,4 +116,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // 👇 Add this line to include all JARs in android/app/libs
+    implementation fileTree(dir: "libs", include: ["*.jar"])
 }
