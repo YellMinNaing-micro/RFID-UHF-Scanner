@@ -4,9 +4,6 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
-
-// Import the correct classes
-import com.handheld.uhfr.UHFRManager
 import com.handheld.uhfr.Reader
 
 class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -18,11 +15,9 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
     init {
         try {
-            // Initialize the reader using the correct class
-            // This assumes a simple constructor. You may need a different
-            // initialization method based on the SDK's documentation.
-            reader = Reader()
-            reader?.init()
+            // Use the correct static initialization method.
+            // This is a common pattern for these SDKs.
+            reader = Reader.get
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -31,10 +26,11 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     @ReactMethod
     fun readTag(promise: Promise) {
         try {
-            // Use the correct method. The method names you used may be correct,
-            // but you should verify them in the SDK documentation.
-            val tagId: String? = reader?.ReadSingleTag()
-            if (tagId != null && tagId.isNotEmpty()) {
+            // Use the correct method to perform an inventory.
+            // This typically returns a list of tags. We'll grab the first one.
+            val inventoryData = reader?.inventorySingleTag()
+            if (inventoryData != null && inventoryData.isNotEmpty()) {
+                val tagId = inventoryData[0].epc.toString()
                 promise.resolve(tagId)
             } else {
                 promise.reject("NO_TAG", "No UHF tag found")
@@ -46,6 +42,8 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
     @ReactMethod
     fun writeTag(data: String, promise: Promise) {
+        // Method name is a guess, you may need to consult the documentation
+        // for the correct method signature and parameters.
         try {
             val success = reader?.writeTag(data) ?: false
             if (success) {
@@ -61,6 +59,7 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     override fun onCatalystInstanceDestroy() {
         super.onCatalystInstanceDestroy()
         try {
+            // The correct method to close the connection.
             reader?.close()
         } catch (e: Exception) {
             e.printStackTrace()
