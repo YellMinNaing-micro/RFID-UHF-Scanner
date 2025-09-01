@@ -5,21 +5,25 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
 
-// Import WUYUAN SDK classes
-import com.wyuan.uhf.UhfReader  // Adjust based on your .jar SDK package
-import com.wyuan.uhf.UhfException
+// Import the correct classes
+import com.handheld.uhfr.UHFRManager
+import com.handheld.uhfr.Reader
 
 class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
-    private var reader: UhfReader? = null
+    // Correctly declare the reader using the 'Reader' class
+    private var reader: Reader? = null
 
     override fun getName(): String = "UhfModule"
 
     init {
         try {
-            reader = UhfReader()  // Initialize SDK reader
-            reader?.init()        // Open connection, if SDK requires it
-        } catch (e: UhfException) {
+            // Initialize the reader using the correct class
+            // This assumes a simple constructor. You may need a different
+            // initialization method based on the SDK's documentation.
+            reader = Reader()
+            reader?.init()
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
@@ -27,7 +31,9 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     @ReactMethod
     fun readTag(promise: Promise) {
         try {
-            val tagId: String? = reader?.readSingleTag()  // SDK method to read one tag
+            // Use the correct method. The method names you used may be correct,
+            // but you should verify them in the SDK documentation.
+            val tagId: String? = reader?.ReadSingleTag()
             if (tagId != null && tagId.isNotEmpty()) {
                 promise.resolve(tagId)
             } else {
@@ -41,7 +47,7 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     @ReactMethod
     fun writeTag(data: String, promise: Promise) {
         try {
-            val success = reader?.writeTag(data) ?: false  // SDK method to write tag
+            val success = reader?.writeTag(data) ?: false
             if (success) {
                 promise.resolve("WRITE_SUCCESS")
             } else {
@@ -55,8 +61,8 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     override fun onCatalystInstanceDestroy() {
         super.onCatalystInstanceDestroy()
         try {
-            reader?.close()  // Close SDK connection
-        } catch (e: UhfException) {
+            reader?.close()
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
