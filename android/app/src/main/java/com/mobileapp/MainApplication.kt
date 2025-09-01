@@ -18,10 +18,11 @@ class MainApplication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost =
       object : DefaultReactNativeHost(this) {
-        override fun getPackages(): List<ReactPackage> =
-            PackageList(this).packages.apply {
-              add(UhfPackage()) // ✅ add your UHF native module
-            }
+       override fun getPackages(): List<ReactPackage> {
+         val packages = PackageList(this).packages.toMutableList()
+         packages.add(UhfPackage()) // <-- This is where you add your package
+         return packages
+       }
 
         override fun getJSMainModuleName(): String = "index"
 
