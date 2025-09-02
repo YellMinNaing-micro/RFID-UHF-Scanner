@@ -1,39 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import { JSX, useState } from 'react';
 import { Button, SafeAreaView, Text, View } from 'react-native';
 import { NativeModules } from 'react-native';
 import './global.css';
+import React = require("react");
 
 const {UhfModule} = NativeModules;
 
-function App(): React.JSX.Element {
+function App(): JSX.Element {
     const [scanning, setScanning] = useState(false); // Is scanning active?
-    const [tag, setTag] = useState<string>('');      // Current scanned tag
+    const [tags, setTags] = useState<string[]>([]);  // Array of scanned tags
     const [intervalId, setIntervalId] = useState<number | null>(null);
 
     const startScanning = () => {
         if (scanning) {
             // Stop scanning
-            if (intervalId !== null) clearInterval(intervalId);
+            if (intervalId !== null) {
+                clearInterval(intervalId);
+            }
             setScanning(false);
             setIntervalId(null);
         } else {
             // Start scanning every 500ms
             const id = setInterval(async () => {
                 try {
-                    const t = await UhfModule.readTag();
-                    setTag(t);
+                    // readAllTags returns an array of strings
+                    const scannedTags: string[] = await UhfModule.readAllTags();
+                    setTags(scannedTags);
                 } catch (e) {
-                    console.error(e);
+                    console.error('UHF scan error:', e);
                 }
             }, 500);
-            setIntervalId(id); // id is a number in React Native
+            // In React Native, setInterval returns a number
+            setIntervalId(id as unknown as number);
             setScanning(true);
         }
     };
 
-    const clearTag = () => {
-        setTag('');
-    };
+    const clearTags = () => setTags([]);
 
     return (
         <SafeAreaView className="flex-1 pt-7 items-center">
@@ -42,7 +45,9 @@ function App(): React.JSX.Element {
             </View>
 
             <View className="mb-4">
-                <Text className="text-lg text-blue-600">Scanned Tag: {tag}</Text>
+                <Text className="text-lg text-blue-600">
+                    Scanned Tags: {tags.length > 0 ? tags.join(', ') : 'None'}
+                </Text>
             </View>
 
             <View className="mb-4">
@@ -53,7 +58,7 @@ function App(): React.JSX.Element {
             </View>
 
             <View>
-                <Button title="Clear" onPress={clearTag} color="red"/>
+                <Button title="Clear" onPress={clearTags} color="red"/>
             </View>
         </SafeAreaView>
     );
