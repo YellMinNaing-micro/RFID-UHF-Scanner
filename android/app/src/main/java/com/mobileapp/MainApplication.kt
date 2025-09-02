@@ -19,11 +19,9 @@ class MainApplication : Application(), ReactApplication {
   override val reactNativeHost: ReactNativeHost =
       object : DefaultReactNativeHost(this) {
        override fun getPackages(): List<ReactPackage> {
-           return listOf(
-               MainReactPackage(),
-               UhfPackage(), // ← This line registers your native module
-               // other packages...
-           )
+           val packages = PackageList(this).packages.toMutableList()
+           packages.add(UhfPackage()) // register your custom package
+           return packages
        }
 
         override fun getJSMainModuleName(): String = "index"
