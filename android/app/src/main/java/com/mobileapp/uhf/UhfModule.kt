@@ -18,43 +18,49 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     }
 
     /** Initialize SerialPort and RrReader */
-    @ReactMethod
-    fun initReader(promise: Promise) {
-        try {
-            serialPort = SerialPort(0, 115200, 0) // adjust port/baudrate if needed
-            serialPort?.rfid_poweron()
-            serialPort?.scaner_poweron()
+  @ReactMethod
+  fun initReader(promise: Promise) {
+      try {
+          serialPort = SerialPort(0, 115200, 0)
+          serialPort?.rfid_poweron()
+          serialPort?.scaner_poweron()
 
-            // Initialize RrReader (static, no instance required)
-            RrReader.connect("/dev/ttyS0", 115200, 0) // adjust port path for your device
-            promise.resolve(true)
-        } catch (e: Exception) {
-            Log.e("UhfModule", "initReader failed", e)
-            promise.reject("INIT_FAILED", e.message)
-        }
-    }
+          val result = RrReader.connect("/dev/ttyS0", 115200, 0) // Use your correct port
+          if (result != 0) {
+              promise.reject("INIT_FAILED", "RrReader connect failed with code $result")
+              return
+          }
 
-    /** Start scanning and return EPC IDs */
-    @ReactMethod
-    fun readAllTags(promise: Promise) {
-        try {
-            val tagList = mutableListOf<String>()
-            val readResult = RrReader.startRead() // replaces inventory()
+          promise.resolve(true)
+      } catch (e: Exception) {
+          promise.reject("INIT_FAILED", e.message)
+      }
+  }
 
-            if (readResult == 0) {
-                // Optionally, process scanned tags using measureYueHeTemp()
-                val tagInfos = RrReader.measureYueHeTemp()
-                tagInfos?.forEach { tag ->
-                    tagList.add(bytesToHex(tag.EpcId))
-                }
-            }
+  @ReactMethod
+  fun readAllTags(promise: Promise) {
+      if (RrReader.rrlib == null) {
+          promise.reject("READ_FAILED", "RrReader not connected")
+          return
+      }
 
-            promise.resolve(tagList.toTypedArray())
-        } catch (e: Exception) {
-            Log.e("UhfModule", "readAllTags failed", e)
-            promise.reject("READ_FAILED", e.message)
-        }
-    }
+      try {
+          val readResult = RrReader.startRead()
+          if (readResult != 0) {
+              promise.reject("READ_FAILED", "startRead failed with code $readResult")
+              return
+          }
+
+          val tagInfos = RrReader.measureYueHeTemp()
+          val tagList = mutableListOf<String>()
+          tagInfos?.forEach { tag -> tagList.add(bytesToHex(tag.EpcId)) }
+
+          promise.resolve(tagList.toTypedArray())
+      } catch (e: Exception) {
+          promise.reject("READ_FAILED", e.message)
+      }
+  }
+
 
     /** Write EPC to a tag */
     @ReactMethod
