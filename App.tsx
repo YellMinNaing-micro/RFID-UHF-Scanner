@@ -1,67 +1,84 @@
-import { JSX, useState } from 'react';
+import React, { useState, useRef, useEffect, JSX } from 'react';
 import { Button, SafeAreaView, Text, View } from 'react-native';
 import { NativeModules } from 'react-native';
-import './global.css';
-import React = require("react");
 
-const {UhfModule} = NativeModules;
+const { UhfModule } = NativeModules;
 
-function App(): JSX.Element {
-    const [scanning, setScanning] = useState(false); // Is scanning active?
-    const [tags, setTags] = useState<string[]>([]);  // Array of scanned tags
-    const [intervalId, setIntervalId] = useState<number | null>(null);
+export default function App(): JSX.Element {
+    const [scanning, setScanning] = useState(false);
+    const [tags, setTags] = useState<string[]>([]);
+    const [readerReady, setReaderReady] = useState(false);
+    const intervalRef = useRef<number | null>(null);
 
-    const startScanning = () => {
+    /** Start scanning (initialize if needed) */
+    const startScanning = async () => {
+        if (!readerReady) {
+            // initialize reader only when first pressing Start
+            try {
+                await UhfModule.initReader();
+                setReaderReady(true);
+                console.log('UHF reader initialized');
+            } catch (e) {
+                console.error('UHF init failed:', e);
+                return; // do not start scanning if init fails
+            }
+        }
+
         if (scanning) {
             // Stop scanning
-            if (intervalId !== null) {
-                clearInterval(intervalId);
+            if (intervalRef.current !== null) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
             }
             setScanning(false);
-            setIntervalId(null);
         } else {
-            // Start scanning every 500ms
-            const id = setInterval(async () => {
+            // Start scanning loop
+            intervalRef.current = setInterval(async () => {
                 try {
-                    // readAllTags returns an array of strings
                     const scannedTags: string[] = await UhfModule.readAllTags();
                     setTags(scannedTags);
                 } catch (e) {
                     console.error('UHF scan error:', e);
                 }
-            }, 500);
-            // In React Native, setInterval returns a number
-            setIntervalId(id as unknown as number);
+            }, 500) as unknown as number;
+
             setScanning(true);
         }
     };
 
+    /** Clear tags list */
     const clearTags = () => setTags([]);
 
+    /** Cleanup on unmount */
+    useEffect(() => {
+        return () => {
+            if (intervalRef.current !== null) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+            if (readerReady) UhfModule.closeReader().catch(console.error);
+        };
+    }, [readerReady]);
+
     return (
-        <SafeAreaView className="flex-1 pt-7 items-center">
-            <View className="mb-4">
-                <Text className="text-xl font-bold">UHF Scanner</Text>
+        <SafeAreaView style={{ flex: 1, paddingTop: 40, alignItems: 'center' }}>
+            <View style={{ marginBottom: 20 }}>
+                <Text style={{ fontSize: 24, fontWeight: 'bold' }}>UHF Scanner</Text>
             </View>
 
-            <View className="mb-4">
-                <Text className="text-lg text-blue-600">
+            <View style={{ marginBottom: 20 }}>
+                <Text style={{ fontSize: 18, color: 'blue' }}>
                     Scanned Tags: {tags.length > 0 ? tags.join(', ') : 'None'}
                 </Text>
             </View>
 
-            <View className="mb-4">
-                <Button
-                    title={scanning ? 'Stop' : 'Start'}
-                    onPress={startScanning}
-                />
+            <View style={{ marginBottom: 20 }}>
+                <Button title={scanning ? 'Stop' : 'Start'} onPress={startScanning} />
             </View>
 
             <View>
-                <Button title="Clear" onPress={clearTags} color="red"/>
+                <Button title="Clear" onPress={clearTags} color="red" />
             </View>
         </SafeAreaView>
     );
 }
-
-export default App;
