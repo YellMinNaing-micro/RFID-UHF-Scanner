@@ -112,7 +112,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     // React Native core
     implementation("com.facebook.react:react-android")
-    implementation files('libs/reader.jar')
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
@@ -120,5 +119,4 @@ dependencies {
         implementation jscFlavor
     }
 
-    // 👇 Add this line to include all JARs in android/app/libs
 }
