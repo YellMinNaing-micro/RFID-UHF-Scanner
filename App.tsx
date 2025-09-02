@@ -10,23 +10,40 @@ export default function App() {
     const intervalRef = useRef<number | null>(null);
 
     useEffect(() => {
-        UhfModule.initReader().catch(console.error);
+        // Initialize reader on mount
+        UhfModule.initReader()
+            .then(() => console.log('UHF Reader initialized'))
+            .catch(console.error);
 
         return () => {
+            // Cleanup on unmount
             if (intervalRef.current !== null) clearInterval(intervalRef.current);
+            UhfModule.stopScan().catch(console.error);
             UhfModule.closeReader().catch(console.error);
         };
     }, []);
 
-    const startScanning = async () => {
-        try {
-            const scannedTags: string[] = await UhfModule.readAllTags();
-            setTags(scannedTags);
-        } catch (e) {
-            console.error('UHF scan error:', e);
+    const toggleScanning = async () => {
+        if (scanning) {
+            // Stop scanning
+            if (intervalRef.current !== null) clearInterval(intervalRef.current);
+            intervalRef.current = null;
+            await UhfModule.stopScan().catch(console.error);
+            setScanning(false);
+        } else {
+            // Start scanning
+            await UhfModule.startScan().catch(console.error);
+            intervalRef.current = setInterval(async () => {
+                try {
+                    const scannedTags: string[] = await UhfModule.readAllTags();
+                    setTags(scannedTags);
+                } catch (e) {
+                    console.error('UHF scan error:', e);
+                }
+            }, 500) as unknown as number; // Type assertion for RN
+            setScanning(true);
         }
     };
-
 
     const clearTags = () => setTags([]);
 
@@ -43,7 +60,7 @@ export default function App() {
             </View>
 
             <View style={{ marginBottom: 20 }}>
-                <Button title={scanning ? 'Stop' : 'Start'} onPress={startScanning} />
+                <Button title={scanning ? 'Stop' : 'Start'} onPress={toggleScanning} />
             </View>
 
             <View>
