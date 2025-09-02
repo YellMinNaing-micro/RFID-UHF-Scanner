@@ -18,25 +18,15 @@ export default function App() {
         };
     }, []);
 
-    const startScanning = () => {
-        if (scanning) {
-            if (intervalRef.current !== null) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
-            }
-            setScanning(false);
-        } else {
-            intervalRef.current = setInterval(async () => {
-                try {
-                    const scannedTags: string[] = await UhfModule.readAllTags();
-                    setTags(scannedTags);
-                } catch (e) {
-                    console.error('UHF scan error:', e);
-                }
-            }, 500) as unknown as number;
-            setScanning(true);
+    const startScanning = async () => {
+        try {
+            const scannedTags: string[] = await UhfModule.readAllTags();
+            setTags(scannedTags);
+        } catch (e) {
+            console.error('UHF scan error:', e);
         }
     };
+
 
     const clearTags = () => setTags([]);
 
