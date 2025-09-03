@@ -21,13 +21,15 @@ android {
         versionCode 1
         versionName "1.0"
 
-        // Only include ABIs that have .so files
         ndk {
-            abiFilters  "armeabi-v7a", "arm64-v8a"
+            abiFilters "armeabi-v7a", "arm64-v8a"
         }
     }
 
-    // Tell Gradle where your precompiled .so files live
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
     sourceSets {
         main {
             jniLibs.srcDirs = ['src/main/jniLibs']
@@ -54,7 +56,7 @@ android {
         }
     }
 
-    // **Disable externalNativeBuild if not needed**
+    // Disable externalNativeBuild if unused
     externalNativeBuild {
         cmake {
             path null
@@ -63,7 +65,15 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // UHF SDK JARs
+    implementation files('libs/UHF67_v3.6.jar')
+    implementation files('libs/ModuleAPI_J.jar')
+    implementation files('libs/DeviceAPIver20150204.jar')
+    implementation files('libs/reader.jar')
+    implementation files('libs/logutil-1.5.1.1.jar')
+    implementation files('libs/App_Demo_API.jar')
+
+    // React Native dependencies
     implementation("com.facebook.react:react-android")
 
     if (hermesEnabled.toBoolean()) {
