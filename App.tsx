@@ -35,7 +35,7 @@ export default function App() {
             await UhfModule.startScan().catch(console.error);
             intervalRef.current = setInterval(async () => {
                 try {
-                    const scannedTags: string[] = await UhfModule.readAllTags();
+                    const scannedTags: string[] = await UhfModule.startScan();
                     setTags(scannedTags);
                 } catch (e) {
                     console.error('UHF scan error:', e);
