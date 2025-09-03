@@ -9,29 +9,11 @@ export default function App() {
     const [tags, setTags] = useState<string[]>([]);
 
     useEffect(() => {
-        // Initialize reader on mount
         UhfModule.initReader()
-            .then(() => console.log('UHF Reader initialized'))
+            .then(() => UhfModule.setPower(10, 10)) // same as UHF-G app
             .catch(console.error);
-
-        // Add event listener to receive scanned tags
-        const scanSubscription = UhfEvents.addListener('onTagsScanned', (data: { tags: string[] }) => {
-            if (data.tags && Array.isArray(data.tags)) {
-                setTags(currentTags => {
-                    const newTags = new Set(currentTags);
-                    data.tags.forEach(tag => newTags.add(tag));
-                    return Array.from(newTags);
-                });
-            }
-        });
-
-        // Cleanup on unmount
-        return () => {
-            scanSubscription.remove();
-            UhfModule.stopScan().catch(console.error);
-            UhfModule.closeReader().catch(console.error);
-        };
     }, []);
+
 
     const toggleScanning = async () => {
         if (scanning) {
