@@ -13,13 +13,12 @@ export default function App() {
             .then(() => UhfModule.setPower(10, 10))
             .catch(console.error);
 
-        // Subscribe to scanned tags
         const subscription = UhfEvents.addListener('onTagsScanned', (data) => {
             if (data?.tags) {
-                // Append new tags without duplicates
                 setTags((prev) => {
+                    // Append only new tags, and put them on top
                     const newTags = data.tags.filter((t: string) => !prev.includes(t));
-                    return [...prev, ...newTags];
+                    return [...newTags, ...prev];
                 });
             }
         });
