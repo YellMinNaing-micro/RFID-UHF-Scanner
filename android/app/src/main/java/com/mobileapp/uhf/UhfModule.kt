@@ -23,6 +23,7 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     private val executor = Executors.newSingleThreadExecutor()
     private var scanning = false
     private var uhfManager: UHFRManager? = null
+    private val scannedTags = mutableSetOf<String>() // Keep track of EPCs already scanned
 
     override fun getName(): String = "UhfModule"
 
@@ -32,102 +33,96 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
             .emit(eventName, params)
     }
 
-   // Initialize reader
-      @ReactMethod
-      fun initReader(promise: Promise) {
-          try {
-              uhfManager = UHFRManager.getInstance()
-              Log.d("UhfModule", "UHFRManager.getInstance() result=$uhfManager")
-              if (uhfManager == null) {
-                  promise.reject("INIT_FAILED", "UHFRManager getInstance returned null")
-              } else {
-                  promise.resolve(true)
-              }
-          } catch (e: Exception) {
-              Log.e("UhfModule", "initReader failed", e)
-              promise.reject("INIT_FAILED", e.message)
-          }
-      }
-
-
-    // Start scanning loop
-@ReactMethod
-fun startScan(promise: Promise) {
-    if (scanning) {
-        promise.resolve(false)
-        return
-    }
-
-    if (uhfManager == null) {
-        promise.reject("SCAN_FAILED", "UHF Manager is not initialized")
-        return
-    }
-
-    scanning = true
-    Log.d("UhfModule", "Scanning started (async mode)")
-    uhfManager?.asyncStartReading()
-
-    executor.execute {
+    @ReactMethod
+    fun initReader(promise: Promise) {
         try {
-            while (scanning) {
-                val tagInfos: List<TAGINFO>? = uhfManager?.tagInventoryRealTime() // use real-time
-                if (!tagInfos.isNullOrEmpty()) {
-                    Log.d("UhfModule", "Tags found: ${tagInfos.size}")
-                    val params = Arguments.createMap()
-                    val tagList = Arguments.createArray()
-
-                    tagInfos.forEach { tag ->
-                        val epcBytes: ByteArray? = tag.EpcId
-                        val epcString = epcBytes?.joinToString("") { b -> "%02X".format(b) } ?: ""
-                        Log.d("UhfModule", "Tag EPC: $epcString")
-                        if (epcString.isNotEmpty()) {
-                            tagList.pushString(epcString)
-                        }
-                    }
-
-                    params.putArray("tags", tagList)
-                    sendEvent("onTagsScanned", params)
-                }
-                Thread.sleep(300)
+            uhfManager = UHFRManager.getInstance()
+            Log.d("UhfModule", "UHFRManager.getInstance() result=$uhfManager")
+            if (uhfManager == null) {
+                promise.reject("INIT_FAILED", "UHFRManager getInstance returned null")
+            } else {
+                promise.resolve(true)
             }
         } catch (e: Exception) {
-            Log.e("UhfModule", "scan error", e)
+            Log.e("UhfModule", "initReader failed", e)
+            promise.reject("INIT_FAILED", e.message)
         }
     }
 
-    promise.resolve(true)
-}
+    @ReactMethod
+    fun startScan(promise: Promise) {
+        if (scanning) {
+            promise.resolve(false)
+            return
+        }
 
+        if (uhfManager == null) {
+            promise.reject("SCAN_FAILED", "UHF Manager is not initialized")
+            return
+        }
 
-    // Stop scanning
-  @ReactMethod
-  fun stopScan(promise: Promise) {
-      if (!scanning) {
-          Log.d("UhfModule", "Scanning already stopped")
-          promise.resolve(false)
-          return
-      }
+        scanning = true
+        Log.d("UhfModule", "Scanning started (async mode)")
+        uhfManager?.asyncStartReading()
 
-      scanning = false
-      try {
-          uhfManager?.asyncStopReading()
-          Log.d("UhfModule", "Scanning stopped (async mode)")
-          promise.resolve(true)
-      } catch (e: Exception) {
-          Log.e("UhfModule", "Failed to stop scanning", e)
-          promise.reject("STOP_FAILED", e.message)
-      }
-  }
+        executor.execute {
+            try {
+                while (scanning) {
+                    val tagInfos: List<TAGINFO>? = uhfManager?.tagInventoryRealTime()
+                    if (!tagInfos.isNullOrEmpty()) {
+                        val params = Arguments.createMap()
+                        val tagList = Arguments.createArray()
 
+                        tagInfos.forEach { tag ->
+                            val epcBytes: ByteArray? = tag.EpcId
+                            val epcString = epcBytes?.joinToString("") { b -> "%02X".format(b) } ?: ""
+                            if (epcString.isNotEmpty() && scannedTags.add(epcString)) { // Only add new tags
+                                Log.d("UhfModule", "Tag EPC: $epcString")
+                                tagList.pushString(epcString)
+                            }
+                        }
 
+                        if (tagList.size() > 0) {
+                            params.putArray("tags", tagList)
+                            sendEvent("onTagsScanned", params)
+                        }
+                    }
+                    Thread.sleep(300)
+                }
+            } catch (e: Exception) {
+                Log.e("UhfModule", "scan error", e)
+            }
+        }
 
-    // Close reader
+        promise.resolve(true)
+    }
+
+    @ReactMethod
+    fun stopScan(promise: Promise) {
+        if (!scanning) {
+            Log.d("UhfModule", "Scanning already stopped")
+            promise.resolve(false)
+            return
+        }
+
+        scanning = false
+        try {
+            uhfManager?.asyncStopReading()
+            Log.d("UhfModule", "Scanning stopped (async mode)")
+            promise.resolve(true)
+        } catch (e: Exception) {
+            Log.e("UhfModule", "Failed to stop scanning", e)
+            promise.reject("STOP_FAILED", e.message)
+        }
+    }
+
     @ReactMethod
     fun closeReader(promise: Promise) {
         scanning = false
         try {
             uhfManager?.close()
             uhfManager = null
+            scannedTags.clear() // Clear scanned tags on close
             Log.d("UhfModule", "Reader closed")
             promise.resolve(true)
         } catch (e: Exception) {
@@ -135,7 +130,6 @@ fun startScan(promise: Promise) {
         }
     }
 
-    // Optional: set power (read/write)
     @ReactMethod
     fun setPower(readPower: Int, writePower: Int, promise: Promise) {
         try {
@@ -147,4 +141,5 @@ fun startScan(promise: Promise) {
         }
     }
 }
+
 
