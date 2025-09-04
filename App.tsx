@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Button, SafeAreaView, Text, View, FlatList, NativeModules, NativeEventEmitter, StyleSheet } from 'react-native';
+import Sound from 'react-native-sound';
 
 const { UhfModule } = NativeModules;
 const UhfEvents = new NativeEventEmitter(UhfModule);
+
+// Load beep sound from Android res/raw folder (Hermes-compatible)
+const beepSound = new Sound('beep.mp3', Sound.MAIN_BUNDLE, (error) => {
+    if (error) {
+        console.log('Failed to load beep sound', error);
+    }
+});
 
 export default function App() {
     const [scanning, setScanning] = useState(false);
@@ -16,8 +24,15 @@ export default function App() {
         const subscription = UhfEvents.addListener('onTagsScanned', (data) => {
             if (data?.tags) {
                 setTags((prev) => {
-                    // Append only new tags, and put them on top
                     const newTags = data.tags.filter((t: string) => !prev.includes(t));
+                    if (newTags.length > 0) {
+                        // Play beep for each new tag scanned
+                        beepSound.stop(() => {
+                            beepSound.play((success) => {
+                                if (!success) console.log('Beep playback failed');
+                            });
+                        });
+                    }
                     return [...newTags, ...prev];
                 });
             }
