@@ -40,16 +40,29 @@ The project integrates the **RFID scanner device SDK** (with native `.so` librar
 
 ## 🏗️ Architecture
 
-- **Native SDK Integration**  
-  - The SDK’s `.so` libraries provide access to RFID hardware features.  
-- **Custom Kotlin Module (`UhfModule.kt`)**  
-  - Wraps SDK methods like `startScan`, `stopScan`, `readTag`, and `writeTag`.  
-  - Exposes them as callable methods in JavaScript via React Native bridge.  
-- **React Native App**  
-  - Provides UI for scanning, reading, writing, and displaying tag data.  
 
-*(SDK filenames and internal implementation details are abstracted for clarity.)*
+```text
+ ┌────────────────────────┐
+ │   React Native (JS)    │
+ │   App UI (App.tsx)     │
+ └───────────▲────────────┘
+             │
+   React Native Bridge
+             │
+ ┌───────────▼────────────┐
+ │   Kotlin Module         │
+ │   (UhfModule.kt)        │
+ └───────────▲────────────┘
+             │
+     RFID Device SDK
+    (with native .so libs)
+             │
+ ┌───────────▼────────────┐
+ │   RFID Scanner Device   │
+ │   (UHF Hardware)        │
+ └────────────────────────┘
 
+```
 ---
 
 ## 📝 Future Improvements
