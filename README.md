@@ -43,3 +43,7 @@ The project integrates the **RFID scanner device SDK** (with native `.so` librar
 - Export scanned tag list to CSV/Excel
 - Tag filtering, sorting, and last scan time
 - Improved UI and animations
+
+## 🤝 Contributing
+
+This is my learning project 🚀 but suggestions and contributions are always welcome!
