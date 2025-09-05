@@ -31,11 +31,15 @@ The project integrates the **RFID scanner device SDK** (with native `.so` librar
 - View EPC + signal strength + timestamp in the tag list
 - Use Read / Write features for tag memory banks
 
+---
+
 ## 📦 Dependencies
 
 - "react-native": "^0.xx.x"
 - "@react-native-community/cli": "^x.x.x"
 - Native integration is handled by the RFID scanner device SDK with Kotlin bindings in UhfModule.kt.
+
+---
 
 ## 📝 Future Improvements
 
@@ -43,6 +47,8 @@ The project integrates the **RFID scanner device SDK** (with native `.so` librar
 - Export scanned tag list to CSV/Excel
 - Tag filtering, sorting, and last scan time
 - Improved UI and animations
+
+---
 
 ## 🤝 Contributing
 
