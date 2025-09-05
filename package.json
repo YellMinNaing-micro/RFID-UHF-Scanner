@@ -10,14 +10,19 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-navigation/core": "^7.10.0",
+    "@react-navigation/native": "^7.1.17",
     "install": "^0.13.0",
     "nativewind": "^4.1.23",
     "npm": "^11.5.2",
     "react": "19.0.0",
     "react-native": "0.79.0",
+    "react-native-gesture-handler": "^2.28.0",
     "react-native-reanimated": "~3.17.4",
-    "react-native-safe-area-context": "^5.4.0",
+    "react-native-safe-area-context": "^5.6.1",
+    "react-native-screens": "^4.16.0",
     "react-native-sound": "^0.12.0",
+    "react-native-vector-icons": "^10.3.0",
     "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
@@ -31,9 +36,11 @@
     "@react-native/eslint-config": "0.79.0",
     "@react-native/metro-config": "0.79.0",
     "@react-native/typescript-config": "0.79.0",
+    "@react-navigation/stack": "^7.4.8",
     "@types/jest": "^29.5.13",
     "@types/node": "^24.3.0",
     "@types/react": "^19.0.0",
+    "@types/react-native-vector-icons": "^6.4.18",
     "@types/react-test-renderer": "^19.0.0",
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
