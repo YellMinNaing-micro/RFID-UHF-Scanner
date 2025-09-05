@@ -79,4 +79,3 @@ The project integrates the **RFID scanner device SDK** (with native `.so` librar
 
 This project is part of my learning journey 🚀. Suggestions, ideas, and improvements are always welcome!  
 
----
