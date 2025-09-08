@@ -4,11 +4,13 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './screens/Login';
 import RegisterScreen from './screens/Register';
 import HomeScreen from "./screens/Home";
+import UhfScannerScreen from "./screens/UhfScanner";
 
 export type RootStackParamList = {
     Login: undefined;
     Register: undefined;
     Home: undefined;
+    UhfScanner: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -20,6 +22,7 @@ const App = () => {
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Register" component={RegisterScreen} />
                 <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="UhfScanner" component={UhfScannerScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );
