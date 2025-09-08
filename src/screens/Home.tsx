@@ -152,6 +152,22 @@ export default function HomeScreen({ navigation }: HomeProps) {
                 columnWrapperStyle={{ justifyContent: "space-between" }}
             />
 
+            <Pressable
+                style={{
+                    backgroundColor: "#3B82F6",
+                    margin: 16,
+                    padding: 16,
+                    borderRadius: 12,
+                    alignItems: "center",
+                }}
+                onPress={() => navigation.navigate("UhfScanner")} // ✅ navigate
+            >
+                <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>
+                    Go to Scanner
+                </Text>
+            </Pressable>
+
+
             {isLogoutVisible && (
                 <View style={styles.logoutOverlay}>
                     <View style={styles.logoutDialog}>
