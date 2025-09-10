@@ -5,12 +5,6 @@ import Sound from 'react-native-sound';
 const { UhfModule } = NativeModules;
 const UhfEvents = new NativeEventEmitter(UhfModule);
 
-// Beep sound ref
-const beepSound = new Sound('beep.mp3', Sound.MAIN_BUNDLE, (error) => {
-    if (error) console.log('Failed to load beep sound', error);
-});
-
-// Tag type with source
 type Tag = {
     epc: string;
     source: 'UI' | 'HW';
@@ -19,37 +13,45 @@ type Tag = {
 export default function UhfScannerScreen() {
     const [scanning, setScanning] = useState(false);
     const [tags, setTags] = useState<Tag[]>([]);
-    const scannedTags = useRef<Set<string>>(new Set());
+    const beepRef = useRef<Sound | null>(null);
 
     useEffect(() => {
+        beepRef.current = new Sound('beep.mp3', Sound.MAIN_BUNDLE, (error) => {
+            if (error) console.log('Failed to load beep sound', error);
+        });
+
         UhfModule.initReader()
             .then(() => UhfModule.setPower(10, 10))
             .catch(console.error);
 
         const subscription = UhfEvents.addListener('onTagsScanned', (data) => {
-            if (data?.tags) {
+            if (data?.tags && data?.sources) {
                 setTags((prev) => {
-                    const newTags: Tag[] = [];
-                    data.tags.forEach((epc: string) => {
-                        if (!scannedTags.current.has(epc)) {
-                            scannedTags.current.add(epc);
-                            // Determine source: if scanning via UI button, mark as 'UI', else 'HW'
-                            newTags.push({ epc, source: scanning ? 'UI' : 'HW' });
-                            // Play beep
-                            beepSound.stop(() => {
-                                beepSound.play((success) => {
-                                    if (!success) console.log('Beep playback failed');
-                                });
-                            });
+                    const newItems: Tag[] = [];
+                    for (let i = 0; i < data.tags.length; i++) {
+                        const epc = data.tags[i];
+                        const source = data.sources[i];
+                        if (!prev.some(t => t.epc === epc)) {
+                            newItems.push({ epc, source });
                         }
-                    });
-                    return [...newTags, ...prev];
+                    }
+                    if (newItems.length > 0 && beepRef.current) {
+                        beepRef.current.stop(() => {
+                            beepRef.current?.play(success => {
+                                if (!success) console.log('Beep playback failed');
+                            });
+                        });
+                    }
+                    return [...newItems, ...prev];
                 });
             }
         });
 
-        return () => subscription.remove();
-    }, [scanning]);
+        return () => {
+            subscription.remove();
+            beepRef.current?.release();
+        };
+    }, []);
 
     const toggleScanning = async () => {
         if (scanning) {
@@ -61,19 +63,16 @@ export default function UhfScannerScreen() {
         }
     };
 
-    const clearTags = () => {
-        setTags([]);
-        scannedTags.current.clear();
-    };
+    const clearTags = () => setTags([]);
 
     const renderTagItem = ({ item, index }: { item: Tag; index: number }) => (
         <Text
             style={[
                 styles.tagItem,
-                { backgroundColor: item.source === 'UI' ? 'red' : 'yellow' },
+                item.source === 'HW' ? styles.hwTag : styles.uiTag,
             ]}
         >
-            {index + 1}. {item.epc}
+            {index + 1}. {item.epc} ({item.source})
         </Text>
     );
 
@@ -102,6 +101,8 @@ const styles = StyleSheet.create({
     title: { fontSize: 28, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
     count: { fontSize: 18, color: 'blue', marginBottom: 10, textAlign: 'center' },
     list: { flex: 1, marginBottom: 20 },
-    tagItem: { fontSize: 16, paddingVertical: 6, paddingHorizontal: 8, marginVertical: 2 },
+    tagItem: { fontSize: 16, paddingVertical: 6, paddingHorizontal: 8, marginVertical: 2, borderRadius: 6 },
+    hwTag: { backgroundColor: 'red', color: 'white' },
+    uiTag: { backgroundColor: 'yellow', color: 'black' },
     buttons: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 },
 });
