@@ -85,8 +85,7 @@ D UhfModule: HW scan EPC tag: E2806A96000040225CE41A0C
 ---
 
 ## 📝 Future Improvements
-
-- [ ] iOS support (currently Android-only)  
+ 
 - [ ] Export scanned tag list to CSV/Excel  
 - [ ] Tag filtering, sorting, and grouping  
 - [ ] Enhanced UI/UX with animations and charts  
