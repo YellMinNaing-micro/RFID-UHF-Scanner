@@ -43,7 +43,7 @@ const ProductCard = ({ product, navigation }: ProductCardProps) => {
                     <Text style={styles.cardPrice}>${product.price}</Text>
                     <Pressable
                         style={styles.plusButton}
-                        // onPress={() => navigation.navigate("ProductDetail", { id: product.id })}
+                         onPress={() => navigation.navigate("Detail", { id: product.id })}
                     >
                         <Ionicons name="add" size={16} color="#fff" />
                     </Pressable>
@@ -77,7 +77,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
         menuOptions.forEach((option) => {
             Animated.timing(animatedValues[option.label], {
                 toValue: option.label === selectedOption ? 1 : 0,
-                duration: 500,
+                duration: 300,
                 useNativeDriver: false,
             }).start();
         });
@@ -128,13 +128,13 @@ export default function HomeScreen({ navigation }: HomeProps) {
                                         flexDirection: "row",
                                         alignItems: "center",
                                         paddingHorizontal: 12,
-                                        paddingVertical: 6,
+                                        paddingVertical: 5,
                                         borderRadius: 9999,
                                         backgroundColor: animatedBg,
                                     }}
                                 >
                                     <Ionicons name={option.icon} size={16} color={iconColor} />
-                                    <Text style={{ color: textColor, marginLeft: 8, fontSize: 16, marginBottom: 4}}>{option.label}</Text>
+                                    <Text style={{ color: textColor, marginLeft: 8, fontSize: 16, marginTop: -2 }}>{option.label}</Text>
                                 </Animated.View>
                             </Pressable>
                         );
@@ -152,20 +152,20 @@ export default function HomeScreen({ navigation }: HomeProps) {
                 columnWrapperStyle={{ justifyContent: "space-between" }}
             />
 
-            <Pressable
-                style={{
-                    backgroundColor: "#3B82F6",
-                    margin: 16,
-                    padding: 16,
-                    borderRadius: 12,
-                    alignItems: "center",
-                }}
-                onPress={() => navigation.navigate("UhfScanner")} // ✅ navigate
-            >
-                <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>
-                    Go to Scanner
-                </Text>
-            </Pressable>
+            {/*<Pressable*/}
+            {/*    style={{*/}
+            {/*        backgroundColor: "#3B82F6",*/}
+            {/*        margin: 16,*/}
+            {/*        padding: 16,*/}
+            {/*        borderRadius: 12,*/}
+            {/*        alignItems: "center",*/}
+            {/*    }}*/}
+            {/*    onPress={() => navigation.navigate("UhfScanner")} // ✅ navigate*/}
+            {/*>*/}
+            {/*    <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>*/}
+            {/*        Go to Scanner*/}
+            {/*    </Text>*/}
+            {/*</Pressable>*/}
 
 
             {isLogoutVisible && (
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     heading: { fontSize: 24, fontWeight: "bold" },
     headerIcons: { flexDirection: "row" },
     iconButton: { padding: 8, borderRadius: 9999 },
-    menuScroll: { marginVertical: 16, paddingLeft: 8, paddingRight: 8},
+    menuScroll: { marginVertical: 16, paddingLeft: 10, paddingRight: 10},
     card: {
         backgroundColor: "#fff",
         borderWidth: 1,
