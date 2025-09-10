@@ -1,34 +1,28 @@
 package com.mobileapp.uhf
 
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.Arguments
-import com.facebook.react.bridge.ReactContext
-import com.facebook.react.bridge.WritableMap
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.util.Log
+import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
-
 import com.handheld.uhfr.UHFRManager
 import com.uhf.api.cls.Reader.TAGINFO
-import com.uhf.api.cls.Reader.READER_ERR
-import com.uhf.api.cls.Reader.Lock_Obj
-import com.uhf.api.cls.Reader.Lock_Type
-
-import android.util.Log
 import java.util.concurrent.Executors
 
-class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class UhfModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     private val executor = Executors.newSingleThreadExecutor()
-    private var scanning = false
+    @Volatile private var scanning = false
     private var uhfManager: UHFRManager? = null
-    private val scannedTags = mutableSetOf<String>() // Keep track of EPCs already scanned
+    private val scannedTags = mutableSetOf<String>()
+    private var triggerReceiver: BroadcastReceiver? = null
 
     override fun getName(): String = "UhfModule"
 
     private fun sendEvent(eventName: String, params: WritableMap?) {
-        reactApplicationContext
+        reactContext
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
             .emit(eventName, params)
     }
@@ -37,10 +31,10 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     fun initReader(promise: Promise) {
         try {
             uhfManager = UHFRManager.getInstance()
-            Log.d("UhfModule", "UHFRManager.getInstance() result=$uhfManager")
             if (uhfManager == null) {
                 promise.reject("INIT_FAILED", "UHFRManager getInstance returned null")
             } else {
+                registerTriggerReceiver() // HW trigger listener
                 promise.resolve(true)
             }
         } catch (e: Exception) {
@@ -51,79 +45,24 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
 
     @ReactMethod
     fun startScan(promise: Promise) {
-        if (scanning) {
-            promise.resolve(false)
-            return
-        }
-
-        if (uhfManager == null) {
-            promise.reject("SCAN_FAILED", "UHF Manager is not initialized")
-            return
-        }
-
-        scanning = true
-        Log.d("UhfModule", "Scanning started (async mode)")
-        uhfManager?.asyncStartReading()
-
-        executor.execute {
-            try {
-                while (scanning) {
-                    val tagInfos: List<TAGINFO>? = uhfManager?.tagInventoryRealTime()
-                    if (!tagInfos.isNullOrEmpty()) {
-                        val params = Arguments.createMap()
-                        val tagList = Arguments.createArray()
-
-                        tagInfos.forEach { tag ->
-                            val epcBytes: ByteArray? = tag.EpcId
-                            val epcString = epcBytes?.joinToString("") { b -> "%02X".format(b) } ?: ""
-                            if (epcString.isNotEmpty() && scannedTags.add(epcString)) { // Only add new tags
-                                Log.d("UhfModule", "Tag EPC: $epcString")
-                                tagList.pushString(epcString)
-                            }
-                        }
-
-                        if (tagList.size() > 0) {
-                            params.putArray("tags", tagList)
-                            sendEvent("onTagsScanned", params)
-                        }
-                    }
-                    Thread.sleep(300)
-                }
-            } catch (e: Exception) {
-                Log.e("UhfModule", "scan error", e)
-            }
-        }
-
-        promise.resolve(true)
+        if (!scanning) startScanningLoop()
+        promise.resolve(scanning)
     }
 
     @ReactMethod
     fun stopScan(promise: Promise) {
-        if (!scanning) {
-            Log.d("UhfModule", "Scanning already stopped")
-            promise.resolve(false)
-            return
-        }
-
-        scanning = false
-        try {
-            uhfManager?.asyncStopReading()
-            Log.d("UhfModule", "Scanning stopped (async mode)")
-            promise.resolve(true)
-        } catch (e: Exception) {
-            Log.e("UhfModule", "Failed to stop scanning", e)
-            promise.reject("STOP_FAILED", e.message)
-        }
+        if (scanning) stopScanningLoop()
+        promise.resolve(!scanning)
     }
 
     @ReactMethod
     fun closeReader(promise: Promise) {
-        scanning = false
         try {
+            stopScanningLoop()
             uhfManager?.close()
             uhfManager = null
-            scannedTags.clear() // Clear scanned tags on close
-            Log.d("UhfModule", "Reader closed")
+            scannedTags.clear()
+            unregisterTriggerReceiver()
             promise.resolve(true)
         } catch (e: Exception) {
             promise.reject("CLOSE_FAILED", e.message)
@@ -134,12 +73,79 @@ class UhfModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMod
     fun setPower(readPower: Int, writePower: Int, promise: Promise) {
         try {
             uhfManager?.setPower(readPower, writePower)
-            Log.d("UhfModule", "Power set: read=$readPower, write=$writePower")
             promise.resolve(true)
         } catch (e: Exception) {
             promise.reject("SET_POWER_FAILED", e.message)
         }
     }
+
+    // ---------------- Scanning loop ----------------
+    private fun startScanningLoop() {
+        if (scanning || uhfManager == null) return
+        scanning = true
+        try { uhfManager?.asyncStartReading() } catch (_: Exception) {}
+        executor.execute {
+            try {
+                while (scanning) {
+                    val tagInfos: List<TAGINFO>? = uhfManager?.tagInventoryRealTime()
+                    if (!tagInfos.isNullOrEmpty()) {
+                        val params = Arguments.createMap()
+                        val tagList = Arguments.createArray()
+                        tagInfos.forEach { tag ->
+                            val epcBytes = tag.EpcId
+                            val epcString = epcBytes?.joinToString("") { b -> "%02X".format(b) } ?: ""
+                            if (epcString.isNotEmpty() && scannedTags.add(epcString)) tagList.pushString(epcString)
+                        }
+                        if (tagList.size() > 0) {
+                            params.putArray("tags", tagList)
+                            sendEvent("onTagsScanned", params)
+                        }
+                    }
+                    Thread.sleep(200)
+                }
+            } catch (e: Exception) { Log.e("UhfModule", "scan loop error", e) }
+        }
+    }
+
+    private fun stopScanningLoop() {
+        if (!scanning) return
+        scanning = false
+        try { uhfManager?.asyncStopReading() } catch (_: Exception) {}
+    }
+
+    // --------------- Hardware trigger ----------------
+    private fun registerTriggerReceiver() {
+        if (triggerReceiver != null) return
+        val filter = IntentFilter().apply {
+            addAction("android.rfid.FUN_KEY")
+            addAction("android.intent.action.FUN_KEY")
+            addAction("com.rfid.FUN_KEY")
+        }
+
+        triggerReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent == null) return
+                val keyCode = intent.getIntExtra("keyCode", intent.getIntExtra("keycode", 0))
+                val keyDown = intent.getBooleanExtra("keydown", false)
+
+                if (keyDown) startScanningLoop() else stopScanningLoop()
+
+                // Optional: notify JS UI of trigger state
+                val params = Arguments.createMap()
+                params.putString("key", "TRIGGER")
+                params.putString("state", if (keyDown) "down" else "up")
+                sendEvent("onHardwareTrigger", params)
+            }
+        }
+
+        try { reactContext.registerReceiver(triggerReceiver, filter) }
+        catch (e: Exception) { Log.e("UhfModule", "register trigger failed", e) }
+    }
+
+    private fun unregisterTriggerReceiver() {
+        triggerReceiver?.let {
+            try { reactContext.unregisterReceiver(it) } catch (_: Exception) {}
+            triggerReceiver = null
+        }
+    }
 }
-
-
