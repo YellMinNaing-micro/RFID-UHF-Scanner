@@ -32,7 +32,8 @@ The project integrates the **RFID scanner device SDK** (with native `.so` librar
 
 ## ⚡ Usage Overview
 
-- Tap **Scan** to continuously detect nearby RFID tags  
+- Tap **Scan** in the app to continuously detect nearby RFID tags  
+- Press the **physical hardware trigger button** on the device to scan tags without touching the UI  
 - View EPC + RSSI + timestamp in the live list  
 - Use **Read / Write** functions to interact with tag memory banks  
 - Optional **beep sound feedback** confirms successful scans  
