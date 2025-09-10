@@ -40,6 +40,23 @@ The project integrates the **RFID scanner device SDK** (with native `.so` librar
 
 ---
 
+### 📋 Example Logs
+
+```text
+UI Scan:
+
+D UhfModule: Scanning started (source=UI)
+D UhfModule: UI scan EPC tag: E2806A96000040225CE4C20C
+```
+
+```text
+Hardware Scan:
+
+D UhfModule: Scanning started (source=HW)
+D UhfModule: HW scan EPC tag: E2806A96000040225CE41A0C
+```
+---
+
 ## 🏗️ Architecture
 
 
