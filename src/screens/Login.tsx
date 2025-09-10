@@ -27,7 +27,7 @@ const LoginScreen = ({ navigation }: { navigation: LoginScreenNavigationProp }) 
 
     const handleLogin = () => {
         if (username === "user" && password === "Password@123") {
-            Alert.alert("Success", "Logged in successfully!");
+            // Alert.alert("Success", "Logged in successfully!");
             navigation.replace("Home"); // replace so back button won't go back to login
         } else {
             Alert.alert("Error", "Invalid credentials!");
