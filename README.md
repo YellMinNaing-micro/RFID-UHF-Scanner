@@ -13,10 +13,11 @@ The project integrates the **RFID scanner device SDK** (with native `.so` librar
 - ✍️ Write data to RFID tags  
 - 📜 Display scanned tags with EPC, signal strength, and timestamp  
 - 🎵 Optional beep feedback when tags are detected  
+- 🔘 **Supports scanning via both UI button and physical hardware trigger button**  
 - 🔌 Supports multiple connection methods:  
   - Bluetooth  
   - USB (OTG)  
-  - Built-in module on RFID devices  
+  - Built-in module on RFID devices   
 
 ---
 
