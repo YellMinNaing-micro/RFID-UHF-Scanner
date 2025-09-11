@@ -38,7 +38,7 @@ const ProductCard = ({ product, navigation }: ProductCardProps) => {
             </View>
             <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>{product.name}</Text>
-                <Text style={styles.cardDesc}>{product.description}</Text>
+                {/*<Text style={styles.cardDesc}>{product.description}</Text>*/}
                 <View style={styles.cardFooter}>
                     <Text style={styles.cardPrice}>${product.price}</Text>
                     <Pressable
