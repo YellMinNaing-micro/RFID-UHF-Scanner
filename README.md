@@ -63,7 +63,7 @@ D UhfModule: HW scan EPC tag: E2806A96000040225CE41A0C
 ```text
  ┌────────────────────────┐
  │   React Native (JS)    │
- │   App UI (App.tsx)     │
+ │  UI (UhfScanner.tsx)   │
  └───────────▲────────────┘
              │
    React Native Bridge
