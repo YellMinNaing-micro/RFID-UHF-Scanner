@@ -69,16 +69,16 @@ D UhfModule: HW scan EPC tag: E2806A96000040225CE41A0C
    React Native Bridge
              │
  ┌───────────▼────────────┐
- │   Kotlin Module         │
- │   (UhfModule.kt)        │
+ │     Kotlin Module      │
+ │     (UhfModule.kt)     │
  └───────────▲────────────┘
              │
      RFID Device SDK
     (with native .so libs)
              │
  ┌───────────▼────────────┐
- │   RFID Scanner Device   │
- │   (UHF Hardware)        │
+ │   RFID Scanner Device  │
+ │   (UHF Hardware)       │
  └────────────────────────┘
 
 ```
