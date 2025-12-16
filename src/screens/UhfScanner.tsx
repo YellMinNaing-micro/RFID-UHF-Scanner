@@ -9,7 +9,6 @@ import {
     Alert,
     NativeEventEmitter,
     NativeModules,
-    ToastAndroid,
 } from "react-native";
 import Sound from "react-native-sound";
 
