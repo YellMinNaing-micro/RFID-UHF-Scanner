@@ -26,7 +26,7 @@ const LoginScreen = ({ navigation }: { navigation: LoginScreenNavigationProp }) 
     const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = () => {
-        if (username === "user" && password === "Password@123") {
+        if (username === "admin" && password === "123") {
             // Alert.alert("Success", "Logged in successfully!");
             navigation.replace("Home"); // replace so back button won't go back to login
         } else {
