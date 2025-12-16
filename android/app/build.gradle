@@ -22,9 +22,9 @@ android {
         versionCode 1
         versionName "1.0"
 
-        ndk {
-            abiFilters "armeabi-v7a", "arm64-v8a"
-        }
+     ndk {
+           abiFilters "armeabi-v7a" // only 32-bit for PDA7000
+       }
     }
 
     kotlinOptions {
@@ -76,12 +76,9 @@ android {
 
 dependencies {
     // UHF SDK JARs
+
+     implementation files('libs/uhfcom13_v15.jar')
     implementation files('libs/UHF67_v3.6.jar')
-    implementation files('libs/ModuleAPI_J.jar')
-    implementation files('libs/DeviceAPIver20150204.jar')
-    implementation files('libs/reader.jar')
-    implementation files('libs/logutil-1.5.1.1.jar')
-    implementation files('libs/App_Demo_API.jar')
 
     // React Native dependencies
     implementation("com.facebook.react:react-android")
