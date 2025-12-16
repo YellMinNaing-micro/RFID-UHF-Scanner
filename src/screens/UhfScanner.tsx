@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
     View,
     Text,
@@ -7,8 +7,11 @@ import {
     SafeAreaView,
     StyleSheet,
     Alert,
+    NativeEventEmitter,
+    NativeModules,
+    ToastAndroid,
 } from "react-native";
-import { NativeEventEmitter, NativeModules } from "react-native";
+import Sound from "react-native-sound";
 
 const { UhfModule } = NativeModules;
 
@@ -21,10 +24,24 @@ export default function UhfScreen() {
     const [epcList, setEpcList] = useState<EPCItem[]>([]);
     const [scanning, setScanning] = useState(false);
 
+    const beepRef = useRef<Sound | null>(null);
+
     useEffect(() => {
+        // Load beep sound
+        beepRef.current = new Sound("beep.mp3", Sound.MAIN_BUNDLE, (error) => {
+            if (error) console.log("Failed to load beep sound", error);
+        });
+
         const emitter = new NativeEventEmitter(UhfModule);
         const subscription = emitter.addListener("UHF_SCAN", (epc: string) => {
             if (epc) {
+                // Play beep
+                beepRef.current?.stop(() => {
+                    beepRef.current?.play((success) => {
+                        if (!success) console.log("Beep failed");
+                    });
+                });
+
                 setEpcList((prev) => {
                     if (prev.find((item) => item.epc === epc)) return prev; // avoid duplicates
                     return [...prev, { id: `${prev.length + 1}`, epc }];
@@ -40,7 +57,10 @@ export default function UhfScreen() {
                 Alert.alert("UHF Init Failed", err.message || "Unknown error");
             });
 
-        return () => subscription.remove();
+        return () => {
+            subscription.remove();
+            beepRef.current?.release();
+        };
     }, []);
 
     const startScan = () => {
