@@ -11,55 +11,51 @@ import {
   StatusBar,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'; // <- vector icons
-import { Product, products } from '../../data/product';
-import type { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../App';
-import { useSafeAreaInsets} from 'react-native-safe-area-context';
+import {Product, products} from '../../data/product';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../App';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
 interface HomeProps {
-    navigation: HomeScreenNavigationProp;
+  navigation: HomeScreenNavigationProp;
 }
 
 interface ProductCardProps {
-    product: Product;
-    navigation: HomeScreenNavigationProp;
+  product: Product;
+  navigation: HomeScreenNavigationProp;
 }
 
-const ProductCard = ({ product, navigation }: ProductCardProps) => {
-    const imageSource =
-        typeof product.image === 'string' ? { uri: product.image } : product.image;
+const ProductCard = ({product, navigation}: ProductCardProps) => {
+  const imageSource =
+    typeof product.image === 'string' ? {uri: product.image} : product.image;
 
-    return (
-        <View style={styles.card}>
-          <Image
-            source={imageSource}
-            style={styles.image}
-            resizeMode="contain"
-          />
-          <View style={styles.newBadge}>
-            <Text style={styles.newText}>New</Text>
-          </View>
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>{product.name}</Text>
-            {/*<Text style={styles.cardDesc}>{product.description}</Text>*/}
-            <View style={styles.cardFooter}>
-              <Text style={styles.cardPrice}>${product.price}</Text>
-              <Pressable
-                style={styles.plusButton}
-                onPress={() => navigation.navigate('Detail', {id: product.id})}>
-                <Ionicons name="add" size={16} color="#fff" />
-              </Pressable>
-            </View>
-          </View>
+  return (
+    <View style={styles.card}>
+      <Image source={imageSource} style={styles.image} resizeMode="contain" />
+      <View style={styles.newBadge}>
+        <Text style={styles.newText}>New</Text>
+      </View>
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle}>{product.name}</Text>
+        {/*<Text style={styles.cardDesc}>{product.description}</Text>*/}
+        <View style={styles.cardFooter}>
+          <Text style={styles.cardPrice}>${product.price}</Text>
+          <Pressable
+            style={styles.plusButton}
+            onPress={() => navigation.navigate('Detail', {id: product.id})}>
+            <Ionicons name="add" size={16} color="#fff" />
+          </Pressable>
         </View>
-    );
+      </View>
+    </View>
+  );
 };
 
-export default function HomeScreen({ navigation }: HomeProps) {
-    const [selectedOption, setSelectedOption] = useState('Payment');
-    const [isLogoutVisible, setIsLogoutVisible] = useState(false);
+export default function HomeScreen({navigation}: HomeProps) {
+  const [selectedOption, setSelectedOption] = useState('Payment');
+  const [isLogoutVisible, setIsLogoutVisible] = useState(false);
 
   const menuOptions = useMemo(
     () => [
@@ -73,164 +69,166 @@ export default function HomeScreen({ navigation }: HomeProps) {
     [],
   );
 
-    const animatedValues = useRef(
-        menuOptions.reduce((acc, option) => {
-            acc[option.label] = new Animated.Value(option.label === selectedOption ? 1 : 0);
-            return acc;
-        }, {} as Record<string, Animated.Value>)
-    ).current;
+  const animatedValues = useRef(
+    menuOptions.reduce((acc, option) => {
+      acc[option.label] = new Animated.Value(
+        option.label === selectedOption ? 1 : 0,
+      );
+      return acc;
+    }, {} as Record<string, Animated.Value>),
+  ).current;
 
-    useEffect(() => {
-        menuOptions.forEach((option) => {
-            Animated.timing(animatedValues[option.label], {
-                toValue: option.label === selectedOption ? 1 : 0,
-                duration: 300,
-                useNativeDriver: false,
-            }).start();
-        });
-    }, [animatedValues, menuOptions, navigation, selectedOption]);
+  useEffect(() => {
+    menuOptions.forEach(option => {
+      Animated.timing(animatedValues[option.label], {
+        toValue: option.label === selectedOption ? 1 : 0,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    });
+  }, [animatedValues, menuOptions, navigation, selectedOption]);
 
-    const handleLogout = () => {
-        setIsLogoutVisible(false);
-        navigation.replace('Login');
-    };
+  const handleLogout = () => {
+    setIsLogoutVisible(false);
+    navigation.replace('Login');
+  };
   const insets = useSafeAreaInsets();
-    return (
-      <View style={{flex: 1, backgroundColor: '#F3F4F6'}}>
-        <StatusBar
-          barStyle="dark-content"
-          translucent
-          backgroundColor="transparent"
-        />
-        <View style={[styles.header, {paddingTop: insets.top}]}>
-          <Text style={styles.heading}>Shopping Bag</Text>
-          <View style={styles.headerIcons}>
-            <Pressable style={styles.iconButton}>
-              <Ionicons name="search-outline" size={24} color="#000" />
-            </Pressable>
-            <Pressable
-              style={styles.iconButton}
-              onPress={() => setIsLogoutVisible(true)}>
-              <Ionicons name="settings-outline" size={24} color="#000" />
-            </Pressable>
-          </View>
+  return (
+    <View style={{flex: 1, backgroundColor: '#F3F4F6'}}>
+      <StatusBar
+        barStyle="dark-content"
+        translucent
+        backgroundColor="transparent"
+      />
+      <View style={[styles.header, {paddingTop: insets.top}]}>
+        <Text style={styles.heading}>Shopping Bag</Text>
+        <View style={styles.headerIcons}>
+          <Pressable style={styles.iconButton}>
+            <Ionicons name="search-outline" size={24} color="#000" />
+          </Pressable>
+          <Pressable
+            style={styles.iconButton}
+            onPress={() => setIsLogoutVisible(true)}>
+            <Ionicons name="settings-outline" size={24} color="#000" />
+          </Pressable>
         </View>
+      </View>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.menuScroll}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingLeft: insets.left,
-              paddingRight: insets.right,
-            }}>
-            {menuOptions.map(option => {
-              const animatedBg = animatedValues[option.label].interpolate({
-                inputRange: [0, 1],
-                outputRange: ['#E5E7EB', '#3B82F6'],
-              });
-              const isSelected = selectedOption === option.label;
-              const textColor = isSelected ? '#FFFFFF' : '#1F2937';
-              const iconColor = isSelected ? '#FFFFFF' : '#000000';
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.menuScroll}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+          }}>
+          {menuOptions.map(option => {
+            const animatedBg = animatedValues[option.label].interpolate({
+              inputRange: [0, 1],
+              outputRange: ['#E5E7EB', '#3B82F6'],
+            });
+            const isSelected = selectedOption === option.label;
+            const textColor = isSelected ? '#FFFFFF' : '#1F2937';
+            const iconColor = isSelected ? '#FFFFFF' : '#000000';
 
-              return (
-                <Pressable
-                  key={option.label}
-                  onPress={() => setSelectedOption(option.label)}
-                  style={{marginRight: 10}}>
-                  <Animated.View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      paddingHorizontal: 12,
-                      paddingVertical: 5,
-                      borderRadius: 9999,
-                      backgroundColor: animatedBg,
-                    }}>
-                    <Ionicons name={option.icon} size={16} color={iconColor} />
-                    <Text
-                      style={{
-                        color: textColor,
-                        marginLeft: 8,
-                        fontSize: 16,
-                        marginTop: -2,
-                      }}>
-                      {option.label}
-                    </Text>
-                  </Animated.View>
-                </Pressable>
-              );
-            })}
-          </View>
-        </ScrollView>
-
-        <FlatList
-          contentContainerStyle={{
-            paddingBottom: insets.bottom,
-            paddingLeft: insets.left + 10,
-            paddingRight: insets.right + 10,
-          }}
-          data={products}
-          renderItem={({item}) => (
-            <ProductCard product={item} navigation={navigation} />
-          )}
-          keyExtractor={item => item.id}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-          columnWrapperStyle={{justifyContent: 'space-between'}}
-        />
-
-        {/*<Pressable*/}
-        {/*    style={{*/}
-        {/*        backgroundColor: "#3B82F6",*/}
-        {/*        margin: 16,*/}
-        {/*        padding: 16,*/}
-        {/*        borderRadius: 12,*/}
-        {/*        alignItems: "center",*/}
-        {/*    }}*/}
-        {/*    onPress={() => navigation.navigate("UhfScanner")} // ✅ navigate*/}
-        {/*>*/}
-        {/*    <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>*/}
-        {/*        Go to Scanner*/}
-        {/*    </Text>*/}
-        {/*</Pressable>*/}
-
-        {isLogoutVisible && (
-          <View style={styles.logoutOverlay}>
-            <View style={styles.logoutDialog}>
-              <Text style={styles.logoutTitle}>Logout</Text>
-              <Text style={styles.logoutText}>
-                Are you sure you want to log out?
-              </Text>
-              <View style={{flexDirection: 'row', marginTop: 16}}>
-                <Pressable
-                  style={[styles.logoutButton, {backgroundColor: '#E5E7EB'}]}
-                  onPress={() => setIsLogoutVisible(false)}>
-                  <Text style={{textAlign: 'center', fontWeight: 'bold'}}>
-                    Cancel
-                  </Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.logoutButton, {backgroundColor: '#EF4444'}]}
-                  onPress={handleLogout}>
+            return (
+              <Pressable
+                key={option.label}
+                onPress={() => setSelectedOption(option.label)}
+                style={{marginRight: 10}}>
+                <Animated.View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingHorizontal: 12,
+                    paddingVertical: 5,
+                    borderRadius: 9999,
+                    backgroundColor: animatedBg,
+                  }}>
+                  <Ionicons name={option.icon} size={16} color={iconColor} />
                   <Text
                     style={{
-                      textAlign: 'center',
-                      color: '#fff',
-                      fontWeight: 'bold',
+                      color: textColor,
+                      marginLeft: 8,
+                      fontSize: 16,
+                      marginTop: -2,
                     }}>
-                    Logout
+                    {option.label}
                   </Text>
-                </Pressable>
-              </View>
+                </Animated.View>
+              </Pressable>
+            );
+          })}
+        </View>
+      </ScrollView>
+
+      <FlatList
+        contentContainerStyle={{
+          paddingBottom: insets.bottom,
+          paddingLeft: insets.left + 10,
+          paddingRight: insets.right + 10,
+        }}
+        data={products}
+        renderItem={({item}) => (
+          <ProductCard product={item} navigation={navigation} />
+        )}
+        keyExtractor={item => item.id}
+        numColumns={2}
+        showsVerticalScrollIndicator={false}
+        columnWrapperStyle={{justifyContent: 'space-between'}}
+      />
+
+      {/*<Pressable*/}
+      {/*    style={{*/}
+      {/*        backgroundColor: "#3B82F6",*/}
+      {/*        margin: 16,*/}
+      {/*        padding: 16,*/}
+      {/*        borderRadius: 12,*/}
+      {/*        alignItems: "center",*/}
+      {/*    }}*/}
+      {/*    onPress={() => navigation.navigate("UhfScanner")} // ✅ navigate*/}
+      {/*>*/}
+      {/*    <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>*/}
+      {/*        Go to Scanner*/}
+      {/*    </Text>*/}
+      {/*</Pressable>*/}
+
+      {isLogoutVisible && (
+        <View style={styles.logoutOverlay}>
+          <View style={styles.logoutDialog}>
+            <Text style={styles.logoutTitle}>Logout</Text>
+            <Text style={styles.logoutText}>
+              Are you sure you want to log out?
+            </Text>
+            <View style={{flexDirection: 'row', marginTop: 16}}>
+              <Pressable
+                style={[styles.logoutButton, {backgroundColor: '#E5E7EB'}]}
+                onPress={() => setIsLogoutVisible(false)}>
+                <Text style={{textAlign: 'center', fontWeight: 'bold'}}>
+                  Cancel
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[styles.logoutButton, {backgroundColor: '#EF4444'}]}
+                onPress={handleLogout}>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: '#fff',
+                    fontWeight: 'bold',
+                  }}>
+                  Logout
+                </Text>
+              </Pressable>
             </View>
           </View>
-        )}
-      </View>
-    );
+        </View>
+      )}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
