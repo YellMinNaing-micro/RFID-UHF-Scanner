@@ -14,7 +14,7 @@ import Ionicons from "react-native-vector-icons/Ionicons"; // <- vector icons
 import { Product, products } from "../../data/product";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../App";
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { useSafeAreaInsets} from 'react-native-safe-area-context';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
@@ -91,138 +91,134 @@ export default function HomeScreen({ navigation }: HomeProps) {
         setIsLogoutVisible(false);
         navigation.replace("Login");
     };
-
+  const insets = useSafeAreaInsets();
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={{flex: 1, backgroundColor: '#F3F4F6'}}>
-          <StatusBar
-            barStyle="dark-content"
-            translucent
-            backgroundColor="transparent"
-          />
-          <View style={styles.header}>
-            <Text style={styles.heading}>Shopping Bag</Text>
-            <View style={styles.headerIcons}>
-              <Pressable style={styles.iconButton}>
-                <Ionicons name="search-outline" size={24} color="#000" />
-              </Pressable>
-              <Pressable
-                style={styles.iconButton}
-                onPress={() => setIsLogoutVisible(true)}>
-                <Ionicons name="settings-outline" size={24} color="#000" />
-              </Pressable>
-            </View>
+      <View style={{flex: 1, backgroundColor: '#F3F4F6'}}>
+        <StatusBar
+          barStyle="dark-content"
+          translucent
+          backgroundColor="transparent"
+        />
+        <View style={[styles.header, {paddingTop: insets.top + 2}]}>
+          <Text style={styles.heading}>Shopping Bag</Text>
+          <View style={styles.headerIcons}>
+            <Pressable style={styles.iconButton}>
+              <Ionicons name="search-outline" size={24} color="#000" />
+            </Pressable>
+            <Pressable
+              style={styles.iconButton}
+              onPress={() => setIsLogoutVisible(true)}>
+              <Ionicons name="settings-outline" size={24} color="#000" />
+            </Pressable>
           </View>
+        </View>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.menuScroll}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              {menuOptions.map(option => {
-                const animatedBg = animatedValues[option.label].interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ['#E5E7EB', '#3B82F6'],
-                });
-                const isSelected = selectedOption === option.label;
-                const textColor = isSelected ? '#FFFFFF' : '#1F2937';
-                const iconColor = isSelected ? '#FFFFFF' : '#000000';
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.menuScroll}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            {menuOptions.map(option => {
+              const animatedBg = animatedValues[option.label].interpolate({
+                inputRange: [0, 1],
+                outputRange: ['#E5E7EB', '#3B82F6'],
+              });
+              const isSelected = selectedOption === option.label;
+              const textColor = isSelected ? '#FFFFFF' : '#1F2937';
+              const iconColor = isSelected ? '#FFFFFF' : '#000000';
 
-                return (
-                  <Pressable
-                    key={option.label}
-                    onPress={() => setSelectedOption(option.label)}
-                    style={{marginRight: 10}}>
-                    <Animated.View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingHorizontal: 12,
-                        paddingVertical: 5,
-                        borderRadius: 9999,
-                        backgroundColor: animatedBg,
-                      }}>
-                      <Ionicons
-                        name={option.icon}
-                        size={16}
-                        color={iconColor}
-                      />
-                      <Text
-                        style={{
-                          color: textColor,
-                          marginLeft: 8,
-                          fontSize: 16,
-                          marginTop: -2,
-                        }}>
-                        {option.label}
-                      </Text>
-                    </Animated.View>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </ScrollView>
-
-          <FlatList
-            data={products}
-            renderItem={({item}) => (
-              <ProductCard product={item} navigation={navigation} />
-            )}
-            keyExtractor={item => item.id}
-            numColumns={2}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{paddingBottom: 16, paddingHorizontal: 8}}
-            columnWrapperStyle={{justifyContent: 'space-between'}}
-          />
-
-          {/*<Pressable*/}
-          {/*    style={{*/}
-          {/*        backgroundColor: "#3B82F6",*/}
-          {/*        margin: 16,*/}
-          {/*        padding: 16,*/}
-          {/*        borderRadius: 12,*/}
-          {/*        alignItems: "center",*/}
-          {/*    }}*/}
-          {/*    onPress={() => navigation.navigate("UhfScanner")} // ✅ navigate*/}
-          {/*>*/}
-          {/*    <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>*/}
-          {/*        Go to Scanner*/}
-          {/*    </Text>*/}
-          {/*</Pressable>*/}
-
-          {isLogoutVisible && (
-            <View style={styles.logoutOverlay}>
-              <View style={styles.logoutDialog}>
-                <Text style={styles.logoutTitle}>Logout</Text>
-                <Text style={styles.logoutText}>
-                  Are you sure you want to log out?
-                </Text>
-                <View style={{flexDirection: 'row', marginTop: 16}}>
-                  <Pressable
-                    style={[styles.logoutButton, {backgroundColor: '#E5E7EB'}]}
-                    onPress={() => setIsLogoutVisible(false)}>
-                    <Text style={{textAlign: 'center', fontWeight: 'bold'}}>
-                      Cancel
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.logoutButton, {backgroundColor: '#EF4444'}]}
-                    onPress={handleLogout}>
+              return (
+                <Pressable
+                  key={option.label}
+                  onPress={() => setSelectedOption(option.label)}
+                  style={{marginRight: 10}}>
+                  <Animated.View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: 12,
+                      paddingVertical: 5,
+                      borderRadius: 9999,
+                      backgroundColor: animatedBg,
+                    }}>
+                    <Ionicons name={option.icon} size={16} color={iconColor} />
                     <Text
                       style={{
-                        textAlign: 'center',
-                        color: '#fff',
-                        fontWeight: 'bold',
+                        color: textColor,
+                        marginLeft: 8,
+                        fontSize: 16,
+                        marginTop: -2,
                       }}>
-                      Logout
+                      {option.label}
                     </Text>
-                  </Pressable>
-                </View>
+                  </Animated.View>
+                </Pressable>
+              );
+            })}
+          </View>
+        </ScrollView>
+
+        <FlatList
+          contentContainerStyle={{
+            paddingBottom: insets.bottom + 16,
+          }}
+          data={products}
+          renderItem={({item}) => (
+            <ProductCard product={item} navigation={navigation} />
+          )}
+          keyExtractor={item => item.id}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          columnWrapperStyle={{justifyContent: 'space-between'}}
+        />
+
+        {/*<Pressable*/}
+        {/*    style={{*/}
+        {/*        backgroundColor: "#3B82F6",*/}
+        {/*        margin: 16,*/}
+        {/*        padding: 16,*/}
+        {/*        borderRadius: 12,*/}
+        {/*        alignItems: "center",*/}
+        {/*    }}*/}
+        {/*    onPress={() => navigation.navigate("UhfScanner")} // ✅ navigate*/}
+        {/*>*/}
+        {/*    <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>*/}
+        {/*        Go to Scanner*/}
+        {/*    </Text>*/}
+        {/*</Pressable>*/}
+
+        {isLogoutVisible && (
+          <View style={styles.logoutOverlay}>
+            <View style={styles.logoutDialog}>
+              <Text style={styles.logoutTitle}>Logout</Text>
+              <Text style={styles.logoutText}>
+                Are you sure you want to log out?
+              </Text>
+              <View style={{flexDirection: 'row', marginTop: 16}}>
+                <Pressable
+                  style={[styles.logoutButton, {backgroundColor: '#E5E7EB'}]}
+                  onPress={() => setIsLogoutVisible(false)}>
+                  <Text style={{textAlign: 'center', fontWeight: 'bold'}}>
+                    Cancel
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.logoutButton, {backgroundColor: '#EF4444'}]}
+                  onPress={handleLogout}>
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      color: '#fff',
+                      fontWeight: 'bold',
+                    }}>
+                    Logout
+                  </Text>
+                </Pressable>
               </View>
             </View>
-          )}
-        </View>
-      </SafeAreaView>
+          </View>
+        )}
+      </View>
     );
 }
 
