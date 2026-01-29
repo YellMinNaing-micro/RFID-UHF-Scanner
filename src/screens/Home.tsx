@@ -10,13 +10,13 @@ import {
   Animated,
   StatusBar,
 } from 'react-native';
-import Ionicons from "react-native-vector-icons/Ionicons"; // <- vector icons
-import { Product, products } from "../../data/product";
-import type { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../App";
+import Ionicons from 'react-native-vector-icons/Ionicons'; // <- vector icons
+import { Product, products } from '../../data/product';
+import type { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../App';
 import { useSafeAreaInsets} from 'react-native-safe-area-context';
 
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
 interface HomeProps {
     navigation: HomeScreenNavigationProp;
@@ -29,7 +29,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, navigation }: ProductCardProps) => {
     const imageSource =
-        typeof product.image === "string" ? { uri: product.image } : product.image;
+        typeof product.image === 'string' ? { uri: product.image } : product.image;
 
     return (
         <View style={styles.card}>
@@ -58,7 +58,7 @@ const ProductCard = ({ product, navigation }: ProductCardProps) => {
 };
 
 export default function HomeScreen({ navigation }: HomeProps) {
-    const [selectedOption, setSelectedOption] = useState("Payment");
+    const [selectedOption, setSelectedOption] = useState('Payment');
     const [isLogoutVisible, setIsLogoutVisible] = useState(false);
 
   const menuOptions = useMemo(
@@ -92,7 +92,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 
     const handleLogout = () => {
         setIsLogoutVisible(false);
-        navigation.replace("Login");
+        navigation.replace('Login');
     };
   const insets = useSafeAreaInsets();
     return (
