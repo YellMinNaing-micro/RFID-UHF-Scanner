@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, {useState, useRef, useEffect, useMemo} from 'react';
 import {
   View,
   Text,
@@ -61,14 +61,17 @@ export default function HomeScreen({ navigation }: HomeProps) {
     const [selectedOption, setSelectedOption] = useState("Payment");
     const [isLogoutVisible, setIsLogoutVisible] = useState(false);
 
-    const menuOptions = [
-        { label: "Payment", icon: "cart-outline" },
-        { label: "Secure Logistics", icon: "cube-outline" },
-        { label: "Contract", icon: "document-text-outline" },
-        { label: "Setting", icon: "settings-outline" },
-        { label: "Secure", icon: "lock-closed-outline" },
-        { label: "Just", icon: "clipboard-outline" },
-    ];
+  const menuOptions = useMemo(
+    () => [
+      {label: 'Payment', icon: 'cart-outline'},
+      {label: 'Secure Logistics', icon: 'cube-outline'},
+      {label: 'Contract', icon: 'document-text-outline'},
+      {label: 'Setting', icon: 'settings-outline'},
+      {label: 'Secure', icon: 'lock-closed-outline'},
+      {label: 'Just', icon: 'clipboard-outline'},
+    ],
+    [],
+  );
 
     const animatedValues = useRef(
         menuOptions.reduce((acc, option) => {
@@ -85,7 +88,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
                 useNativeDriver: false,
             }).start();
         });
-    }, [selectedOption]);
+    }, [animatedValues, menuOptions, navigation, selectedOption]);
 
     const handleLogout = () => {
         setIsLogoutVisible(false);
@@ -99,7 +102,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
           translucent
           backgroundColor="transparent"
         />
-        <View style={[styles.header, {paddingTop: insets.top + 2}]}>
+        <View style={[styles.header, {paddingTop: insets.top}]}>
           <Text style={styles.heading}>Shopping Bag</Text>
           <View style={styles.headerIcons}>
             <Pressable style={styles.iconButton}>
@@ -117,7 +120,13 @@ export default function HomeScreen({ navigation }: HomeProps) {
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.menuScroll}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingLeft: insets.left,
+              paddingRight: insets.right,
+            }}>
             {menuOptions.map(option => {
               const animatedBg = animatedValues[option.label].interpolate({
                 inputRange: [0, 1],
@@ -160,7 +169,9 @@ export default function HomeScreen({ navigation }: HomeProps) {
 
         <FlatList
           contentContainerStyle={{
-            paddingBottom: insets.bottom + 16,
+            paddingBottom: insets.bottom,
+            paddingLeft: insets.left + 10,
+            paddingRight: insets.right + 10,
           }}
           data={products}
           renderItem={({item}) => (
@@ -223,10 +234,6 @@ export default function HomeScreen({ navigation }: HomeProps) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
   header: {
     paddingHorizontal: 8,
     paddingVertical: 12,
