@@ -1,10 +1,11 @@
 import React from "react";
-import { View, Text, ScrollView, Image, Pressable, StyleSheet } from "react-native";
+import { View, Text, ScrollView, Image, Pressable, StyleSheet, StatusBar} from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RouteProp } from "@react-navigation/native";
 import type { RootStackParamList } from "../App";
 import { products } from "../../data/product";
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 // Correct types for navigation and route
 type DetailScreenNavigationProp = StackNavigationProp<RootStackParamList, "Detail">;
@@ -16,6 +17,7 @@ interface ProductDetailProps {
 }
 
 export default function DetailScreen({ navigation, route }: ProductDetailProps) {
+  const insets = useSafeAreaInsets();
     const { id } = route.params;
     const product = products.find((p) => p.id === id);
 
@@ -30,95 +32,127 @@ export default function DetailScreen({ navigation, route }: ProductDetailProps) 
     const handleGoBack = () => navigation.goBack();
 
     return (
-        <View style={styles.container}>
-            {/* Image Header */}
-            <View style={styles.imageContainer}>
-                <Image
-                    source={typeof product.image === "string" ? { uri: product.image } : product.image}
-                    style={styles.image}
-                    resizeMode="cover"
-                />
-                <View style={styles.topIcons}>
-                    <Pressable onPress={handleGoBack} style={styles.iconButton}>
-                        <Ionicons name="chevron-back" size={20} color="black" />
-                    </Pressable>
-                    <View style={styles.rightIcons}>
-                        <Pressable style={styles.iconButton}>
-                            <Ionicons name="heart-outline" size={20} color="black" />
-                        </Pressable>
-                        <Pressable style={styles.iconButton}>
-                            <Ionicons name="bag-handle-outline" size={20} color="black" />
-                        </Pressable>
-                    </View>
-                </View>
+      <View style={styles.container}>
+        <StatusBar
+          barStyle="dark-content"
+          translucent
+          backgroundColor="transparent"
+        />
+        {/* Image Header */}
+        <View style={[styles.imageContainer, {paddingTop: insets.top}]}>
+          <Image
+            source={
+              typeof product.image === 'string'
+                ? {uri: product.image}
+                : product.image
+            }
+            style={styles.image}
+            resizeMode="stretch"
+          />
+          <View
+            style={[
+              styles.topIcons,
+              {
+                paddingTop: insets.top + 4,
+                paddingLeft: insets.left + 10,
+                paddingRight: insets.right + 10,
+              },
+            ]}>
+            <Pressable onPress={handleGoBack} style={styles.iconButton}>
+              <Ionicons name="chevron-back" size={20} color="black" />
+            </Pressable>
+            <View style={styles.rightIcons}>
+              <Pressable style={styles.iconButton}>
+                <Ionicons name="heart-outline" size={20} color="black" />
+              </Pressable>
+              <Pressable style={styles.iconButton}>
+                <Ionicons name="bag-handle-outline" size={20} color="black" />
+              </Pressable>
             </View>
-
-            {/* Scrollable Product Details */}
-            <ScrollView style={styles.detailsContainer} showsVerticalScrollIndicator={false}>
-                <Text style={styles.productName}>{product.name}</Text>
-                <Text style={styles.collectionText}>From: Uphaar Collection</Text>
-
-                <View style={styles.priceRow}>
-                    <Text style={styles.price}>${product.price}</Text>
-                    {product.oldPrice && <Text style={styles.oldPrice}>${product.oldPrice}</Text>}
-                    {product.discount && (
-                        <View style={styles.discountBadge}>
-                            <Text style={styles.discountText}>{product.discount}% OFF</Text>
-                        </View>
-                    )}
-                </View>
-
-                <View style={styles.ratingRow}>
-                    {[...Array(5)].map((_, i) => (
-                        <Ionicons
-                            key={i}
-                            name={i < product.rating ? "star" : "star-outline"}
-                            size={16}
-                            color={i < product.rating ? "#facc15" : "#d1d5db"}
-                        />
-                    ))}
-                    <Text style={styles.reviewText}>({product.reviews})</Text>
-                </View>
-
-                <Text style={styles.infoText}>434 People Bought This Item Recently</Text>
-
-                <View style={styles.promoBox}>
-                    <Ionicons name="bag-handle-outline" size={16} style={{ marginRight: 8 }} />
-                    <Text style={styles.promoText}>New Users - Flat 15% OFF On Your First Transaction</Text>
-                </View>
-
-                <View style={styles.divider} />
-
-                <View style={styles.productSpecs}>
-                    <Text style={styles.specTitle}>The Paanita Ring</Text>
-                    <View style={styles.specRow}>
-                        <View>
-                            <Text style={styles.specLabel}>Product Code</Text>
-                            <Text style={styles.specLabel}>Height</Text>
-                            <Text style={styles.specLabel}>Width</Text>
-                            <Text style={styles.specLabel}>Product Weight (Approx)</Text>
-                        </View>
-                        <View style={{ alignItems: "flex-end" }}>
-                            <Text style={styles.specValue}>026409-5705875</Text>
-                            <Text style={styles.specValue}>20.7 mm</Text>
-                            <Text style={styles.specValue}>6.0 mm</Text>
-                            <Text style={styles.specValue}>2.14 gram</Text>
-                        </View>
-                    </View>
-                </View>
-            </ScrollView>
-
-            {/* Add To Cart Button */}
-            <View style={styles.addToCartContainer}>
-                <Pressable
-                    style={styles.addToCartButton}
-                    onPress={() => navigation.navigate("UhfScanner")}
-                >
-                    <Ionicons name="cart-outline" size={20} color="#fff" />
-                    <Text style={styles.addToCartText}>Add To Cart</Text>
-                </Pressable>
-            </View>
+          </View>
         </View>
+
+        {/* Scrollable Product Details */}
+        <ScrollView
+          style={[
+            styles.detailsContainer,
+            {paddingLeft: insets.left + 10, paddingRight: insets.right + 10},
+          ]}
+          showsVerticalScrollIndicator={false}>
+          <Text style={styles.productName}>{product.name}</Text>
+          <Text style={styles.collectionText}>From: Uphaar Collection</Text>
+
+          <View style={styles.priceRow}>
+            <Text style={styles.price}>${product.price}</Text>
+            {product.oldPrice && (
+              <Text style={styles.oldPrice}>${product.oldPrice}</Text>
+            )}
+            {product.discount && (
+              <View style={styles.discountBadge}>
+                <Text style={styles.discountText}>{product.discount}% OFF</Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.ratingRow}>
+            {[...Array(5)].map((_, i) => (
+              <Ionicons
+                key={i}
+                name={i < product.rating ? 'star' : 'star-outline'}
+                size={16}
+                color={i < product.rating ? '#facc15' : '#d1d5db'}
+              />
+            ))}
+            <Text style={styles.reviewText}>({product.reviews})</Text>
+          </View>
+
+          <Text style={styles.infoText}>
+            434 People Bought This Item Recently
+          </Text>
+
+          <View style={styles.promoBox}>
+            <Ionicons
+              name="bag-handle-outline"
+              size={16}
+              style={{marginRight: 8}}
+            />
+            <Text style={styles.promoText}>
+              New Users - Flat 15% OFF On Your First Transaction
+            </Text>
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.productSpecs}>
+            <Text style={styles.specTitle}>The Paanita Ring</Text>
+            <View style={styles.specRow}>
+              <View>
+                <Text style={styles.specLabel}>Product Code</Text>
+                <Text style={styles.specLabel}>Height</Text>
+                <Text style={styles.specLabel}>Width</Text>
+                <Text style={styles.specLabel}>Product Weight (Approx)</Text>
+              </View>
+              <View style={{alignItems: 'flex-end'}}>
+                <Text style={styles.specValue}>026409-5705875</Text>
+                <Text style={styles.specValue}>20.7 mm</Text>
+                <Text style={styles.specValue}>6.0 mm</Text>
+                <Text style={styles.specValue}>2.14 gram</Text>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Add To Cart Button */}
+        <View
+          style={[styles.addToCartContainer, {paddingBottom: insets.bottom}]}>
+          <Pressable
+            style={styles.addToCartButton}
+            onPress={() => navigation.navigate('UhfScanner')}>
+            <Ionicons name="cart-outline" size={20} color="#fff" />
+            <Text style={styles.addToCartText}>Add To Cart</Text>
+          </Pressable>
+        </View>
+      </View>
     );
 }
 
@@ -131,11 +165,9 @@ const styles = StyleSheet.create({
     image: { width: "100%", height: 350 },
     topIcons: {
         position: "absolute",
-        top: 40,
         width: "100%",
         flexDirection: "row",
         justifyContent: "space-between",
-        paddingHorizontal: 20,
     },
     iconButton: { backgroundColor: "rgba(255,255,255,0.7)", padding: 8, borderRadius: 50, marginLeft: 5 },
     rightIcons: { flexDirection: "row" },
