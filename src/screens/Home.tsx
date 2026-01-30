@@ -283,6 +283,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#111827',
     marginBottom: 4,
+    fontFamily: 'Pyidaungsu-Bold'
   },
   cardDesc: {fontSize: 12, color: '#6B7280', marginBottom: 4},
   cardFooter: {
