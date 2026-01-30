@@ -1,0 +1,13 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/Pyidaungsu-Bold.ttf",
+      "sha1": "b1d2d763372e5b5c2a44c4531bed6c9f0d068efd"
+    },
+    {
+      "path": "assets/fonts/Pyidaungsu-Regular.ttf",
+      "sha1": "5565eac0936f7d0740dce154d4c4ae6d3fa3c2ad"
+    }
+  ]
+}
