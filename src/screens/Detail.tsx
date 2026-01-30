@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     padding: 16,
   },
-  productName: {fontSize: 24, fontWeight: 'bold', marginBottom: 8},
+  productName: {fontSize: 24, marginBottom: 8, fontFamily: 'Pyidaungsu-Bold'},
   collectionText: {fontSize: 14, color: '#6B7280', marginBottom: 8},
   priceRow: {flexDirection: 'row', alignItems: 'center', marginBottom: 8},
   price: {fontSize: 22, fontWeight: 'bold', color: '#111827', marginRight: 8},
