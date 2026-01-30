@@ -38,7 +38,9 @@ const ProductCard = ({product, navigation}: ProductCardProps) => {
         <Text style={styles.newText}>New</Text>
       </View>
       <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{product.name}</Text>
+        <Text style={styles.cardTitle} allowFontScaling={false}>
+          {product.name}{' '}
+        </Text>
         {/*<Text style={styles.cardDesc}>{product.description}</Text>*/}
         <View style={styles.cardFooter}>
           <Text style={styles.cardPrice}>${product.price}</Text>
@@ -143,10 +145,11 @@ export default function HomeScreen({navigation}: HomeProps) {
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    paddingHorizontal: 12,
-                    paddingVertical: 5,
-                    borderRadius: 9999,
+                    paddingHorizontal: 8,
+                    paddingVertical: 2,
+                    borderRadius: 15,
                     backgroundColor: animatedBg,
+                    height: 30,
                   }}>
                   <Ionicons name={option.icon} size={16} color={iconColor} />
                   <Text
