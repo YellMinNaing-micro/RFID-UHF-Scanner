@@ -90,7 +90,9 @@ export default function DetailScreen({navigation, route}: ProductDetailProps) {
           {paddingLeft: insets.left + 10, paddingRight: insets.right + 10},
         ]}
         showsVerticalScrollIndicator={false}>
-        <Text style={styles.productName}>{product.name}</Text>
+        <Text style={styles.productName} allowFontScaling={false}>
+          {product.name}
+        </Text>
         <Text style={styles.collectionText}>From: Uphaar Collection</Text>
 
         <View style={styles.priceRow}>
