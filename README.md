@@ -1,6 +1,6 @@
 # 📡 React Native RFID (UHF) Scanner
 
-This is my **first React Native CLI project** for **UHF RFID scanning, reading, and writing** on a handheld RFID scanner device.  
+This is my **React Native CLI project** for **UHF RFID scanning, reading, and writing** on a handheld RFID scanner device.  
 
 The project integrates the **RFID scanner device SDK** (with native `.so` libraries) through a **custom Kotlin module (`UhfModule.kt`)**, making it possible to access hardware-level RFID functions directly inside a React Native app.
 
