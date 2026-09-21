@@ -35,6 +35,12 @@ local.properties
 !debug.keystore
 .kotlin/
 
+# Proprietary RFID vendor SDK artifacts (obtain them directly from the vendor)
+/android/app/libs/*.jar
+/android/app/libs/**/*.class
+/android/app/libs/META-INF/
+/android/app/src/main/jniLibs/**/*.so
+
 # node.js
 #
 node_modules/
