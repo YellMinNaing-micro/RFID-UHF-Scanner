@@ -1,8 +1,11 @@
-# 📡 React Native RFID (UHF) Scanner
+# React Native RFID (UHF) Scanner
 
 This is my **React Native CLI project** for **UHF RFID scanning, reading, and writing** on a handheld RFID scanner device.  
 
-The project integrates the **RFID scanner device SDK** (with native `.so` libraries) through a **custom Kotlin module (`UhfModule.kt`)**, making it possible to access hardware-level RFID functions directly inside a React Native app.
+The project integrates an RFID scanner device SDK through a **custom Kotlin module (`UhfModule.kt`)**, making it possible to access hardware-level RFID functions directly inside a React Native app.
+
+> [!IMPORTANT]
+> This repository demonstrates the application source and React Native-to-Kotlin bridge. Proprietary vendor JAR and `.so` binaries are deliberately excluded and are not covered by this project's license.
 
 ---
 
@@ -27,6 +30,23 @@ The project integrates the **RFID scanner device SDK** (with native `.so` librar
 - **Kotlin (Android Native Module)** – to bridge the SDK with React Native  
 - **RFID Scanner Device SDK** – provided by hardware vendor (includes `.so` libraries for low-level access)  
 - Tested on **Android-based RFID scanner devices**  
+
+---
+
+## Vendor SDK setup
+
+Obtain the correct SDK and redistribution rights directly from your hardware vendor. For the SDK version used by this example, place your locally obtained files at:
+
+```text
+android/app/libs/uhfcom13_v15.jar
+android/app/libs/UHF67_v3.6.jar
+android/app/src/main/jniLibs/arm64-v8a/*.so
+android/app/src/main/jniLibs/armeabi-v7a/*.so
+```
+
+Exact filenames, ABI support, permissions, and serial-port configuration may differ by device model. Do not recover vendor binaries from this repository's old Git history; use a vendor-supplied or vendor-authorized package.
+
+Without the vendor SDK, the TypeScript and Kotlin bridge can be reviewed, but the Android app will not compile because `UhfModule.kt` imports vendor classes.
 
 ---
 
@@ -96,4 +116,10 @@ D UhfModule: HW scan EPC tag: E2806A96000040225CE41A0C
 ## 🤝 Contributing
 
 This project is part of my learning journey 🚀. Suggestions, ideas, and improvements are always welcome!  
+
+---
+
+## License
+
+Original source code in this repository is licensed under the [MIT License](LICENSE). Third-party packages and assets retain their own terms. Proprietary RFID SDK files are excluded from the repository and the MIT grant; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
